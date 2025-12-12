@@ -1,0 +1,64 @@
+services:
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:26.4
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KC_HOSTNAME=http://keycloak.localtest.me:8080
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+    command:
+      - start-dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak:/opt/keycloak/data
+    restart: unless-stopped
+
+  ollama:
+    container_name: ollama
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+      - ./models:/root/.ollama/custom_models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    restart: always
+
+  open-webui:
+    container_name: open-webui
+    image: ghcr.io/open-webui/open-webui:main
+    depends_on:
+      - keycloak
+    ports:
+      - "8888:8080"
+    volumes:
+      - open-webui:/app/open_webui
+      - ./functions:/app/backend/data/_data/functions
+    environment:
+      - WEBUI_URL=http://localhost:8888
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OAUTH_CLIENT_ID=open-webui
+      - OAUTH_CLIENT_SECRET=${OIDC_CLIENT_SECRET}
+      - OPENID_PROVIDER_URL=http://keycloak.localtest.me:8080/realms/open-webui/.well-known/openid-configuration
+      - OPENID_REDIRECT_URI=http://localhost:8888/oauth/oidc/callback
+      - OAUTH_SCOPES=openid
+      - OAUTH_PROVIDER_NAME=Keycloak
+      - DEFAULT_USER_ROLE=user
+      - ENABLE_OAUTH_SIGNUP=true
+    extra_hosts:
+      - "keycloak.localtest.me:host-gateway"
+    restart: always
+
+volumes:
+  ollama:
+  open-webui:
+  keycloak:

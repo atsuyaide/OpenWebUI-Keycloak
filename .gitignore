@@ -1,0 +1,6 @@
+# Environment variables
+.env
+
+# Models directory (keep .gitkeep)
+models/*
+!models/.gitkeep
