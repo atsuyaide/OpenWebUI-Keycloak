@@ -55,6 +55,8 @@ services:
       - DEFAULT_USER_ROLE=user
       - ENABLE_OAUTH_SIGNUP=true
     extra_hosts:
+      # コンテナ内からとブラウザから同じホスト名でアクセスできるようにするための設定
+      # *.localtest.me ドメインはローカルホストのIPアドレスに解決される
       - "keycloak.localtest.me:host-gateway"
     restart: always
 
