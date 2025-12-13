@@ -14,24 +14,6 @@ services:
       - "8080:8080"
     volumes:
       - keycloak:/opt/keycloak/data
-    restart: unless-stopped
-
-  ollama:
-    container_name: ollama
-    image: ollama/ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama:/root/.ollama
-      - ./models:/root/.ollama/custom_models
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [ gpu ]
-    restart: always
 
   open-webui:
     container_name: open-webui
@@ -42,7 +24,6 @@ services:
       - "8888:8080"
     volumes:
       - open-webui:/app/open_webui
-      - ./functions:/app/backend/data/_data/functions
     environment:
       - WEBUI_URL=http://localhost:8888
       - OLLAMA_BASE_URL=http://ollama:11434
@@ -58,9 +39,22 @@ services:
       # コンテナ内からとブラウザから同じホスト名でアクセスできるようにするための設定
       # *.localtest.me ドメインはローカルホストのIPアドレスに解決される
       - "keycloak.localtest.me:host-gateway"
-    restart: always
+  ollama:
+    container_name: ollama
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
 
 volumes:
-  ollama:
   open-webui:
   keycloak:
+  ollama:
