@@ -71,11 +71,11 @@ docker exec -it ollama ollama pull gemma:2b
 1. `.env`の変更を反映するため、Open WebUI コンテナを再起動します。
 
     ```shell
-    docker compose restart open-webui
+    docker compose up -d --force-recreate open-webui
     ```
 
-2. ブラウザで `http://localhost:8888` にアクセス
-3. **Keycloak で続ける** をクリック
-4. 作成したユーザーでログイン
+2. OpenWeb UIが起動後にブラウザで `http://localhost:8888` にアクセスし、ログイン画面に移動
+3. `Continue with keycloak` をクリック
+4. 作成した`admin`ユーザーでログイン
 
 最初にログインしたユーザーが Open WebUI の管理者になります。
